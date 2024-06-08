@@ -1,12 +1,60 @@
-
-/* 
-
-    You can write your own styles here...
+body {
+    background-color: black;
+}
+.container {
+    background-color: rgb(245, 245, 245);
+    border-left: 2px solid;
+    border-right: 2px solid;
+    padding: 0; 
+    display: flex;
+    height: 641px;
+}
+.alert {
+    transform: translateX(200%) translateY(40%);
+    border-width: 2px;
+    width: 200px; 
+    height: 80px;
+    border-radius: 0;
+    text-align: center; 
+    display: flex;
+}
+h1 {
+    color: rgba(201, 149, 159, 0.671);
+    text-align: center;
+    width: 119px;
+    transform: translateX(360%);
+    font-weight: lighter;
+    font-size: 100px;
     
-    
-    ...Or you can use the import command to include 
-    other sylesheets into your bunde as well, e.j:
-    
-    import 'relative/path/to/stylesheet.scss';
-
-*/
+}
+.list-group-item{
+    width: 900px;
+    transform: translateX(12%);
+    background-color: rgb(245, 245, 245);
+}
+.form-control {
+    background-color: rgb(245, 245, 245);
+    border: none;
+}
+.btn {
+    font-size: 24px;
+    background-color: none;
+    color: rgba(201, 149, 159, 0.671);
+}
+.btn-f {
+    background-color: rgb(245, 113, 113);
+    color: white;
+    border-radius: 5px;
+    border-inline-start-style: unset;
+    font-size: 11px;
+    width: 60px;
+    height: 70px;
+    transform: translateX(190%) translateY(201%);
+}
+.list-group {
+    display: flex;
+    height: 230px;
+}
+.red-text {
+    color: red;
+}
