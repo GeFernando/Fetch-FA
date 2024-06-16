@@ -51,6 +51,26 @@ h1 {
     height: 70px;
     transform: translateX(190%) translateY(201%);
 }
+.btn-g {
+    background-color: rgb(60, 202, 60);
+    color: white;
+    border-radius: 5px;
+    border-inline-start-style: unset;
+    font-size: 11px;
+    width: 60px;
+    height: 70px;
+    transform: translateX(190%) translateY(298%);
+}
+.btn-h {
+    background-color: rgb(68, 68, 168);
+    color: white;
+    border-radius: 5px;
+    border-inline-start-style: unset;
+    font-size: 11px;
+    width: 60px;
+    height: 70px;
+    transform: translateX(-8%) translateY(398%);
+}
 .list-group {
     display: flex;
     height: 230px;

@@ -6,51 +6,64 @@ const Lista = () => {
     const [hoveredIndex, setHoveredIndex] = useState(null);
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
-    const username = "GeFernando"; 
+    const username = "GeFernando";
 
     useEffect(() => {
-        // GET
+        fetchTasks();
+    }, []);
+
+    const fetchTasks = () => {
         fetch(`https://playground.4geeks.com/todo/users/${username}`)
             .then(resp => resp.json())
             .then(data => {
-                if (Array.isArray(data)) {
-                    setItems(data);
+                if (data && data.todos) {
+                    setItems(data.todos);
                 } else {
                     console.error("Error fetching data:", data);
                 }
             })
             .catch(error => console.log(error));
-    }, []);
+    };
 
-    useEffect(() => {
-        if (items.length >= 0) {
-            syncTasksWithServer(items);
-        }
-    }, [items]);
+    const fetchCreateTask = (newTodo) => {
+        fetch(`https://playground.4geeks.com/todo/todos/GeFernando`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(newTodo)
+        })
+        .then(resp => {
+            if (!resp.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return resp.json();
+        })
+        .then(() => {
+            fetchTasks();
+        })
+        .catch(error => console.log(error));
+    };
 
     const syncTasksWithServer = (todos) => {
-        todos.forEach(todo => {
-            // PUT
-            fetch(`https://playground.4geeks.com/todo/todos/${todo.id}`, {
-                method: "PUT",
-                body: JSON.stringify(todo),
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            })
-            .then(resp => {
-                if (!resp.ok) {
-                    throw new Error("Network response was not ok");
-                }
-                return resp.json();
-            })
-            .then(data => console.log(data))
-            .catch(error => console.log(error));
-        });
+        fetch(`https://playground.4geeks.com/todo/users/${username}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(todos)
+        })
+        .then(resp => {
+            if (!resp.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return resp.json();
+        })
+        .then(data => console.log("Tasks synchronized with server:", data))
+        .catch(error => console.log(error));
     };
 
     const createUser = () => {
-        // POST
         fetch(`https://playground.4geeks.com/todo/users/${username}`, {
             method: "POST",
             headers: {
@@ -63,7 +76,29 @@ const Lista = () => {
             }
             return resp.json();
         })
-        .then(data => console.log(data))
+        .then(data => {
+            console.log(data);
+            fetchTasks();
+        })
+        .catch(error => console.log(error));
+    };
+
+    const deleteUser = () => {
+        fetch(`https://playground.4geeks.com/todo/users/${username}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        .then(resp => {
+            if (!resp.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return resp.json();
+        })
+        .then(() => {
+            setItems([]);
+        })
         .catch(error => console.log(error));
     };
 
@@ -74,7 +109,7 @@ const Lista = () => {
     const handleKeyPress = (e) => {
         if (e.key === "Enter" && inputValue.trim()) {
             const newTodo = { label: inputValue, done: false };
-            setItems([...items, newTodo]);
+            fetchCreateTask(newTodo);
             setInputValue("");
             setShowSuccessMessage(true);
             setTimeout(() => setShowSuccessMessage(false), 3000);
@@ -84,30 +119,48 @@ const Lista = () => {
     const handleDelete = (index) => {
         const newItems = items.filter((_, i) => i !== index);
         setItems(newItems);
+        syncTasksWithServer(newItems);
+    };
+
+    const handleDeleteTask = (taskId, index) => {
+        fetch(`https://playground.4geeks.com/todo/todos/${taskId}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        .then(resp => {
+            if (!resp.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return resp.json();
+        })
+        .then(() => {
+            handleDelete(index);
+        })
+        .catch(error => console.log(error));
     };
 
     const handleDeleteAll = () => {
-        const deletePromises = items.map(item => {
-            const todoId = item.id; 
-            return fetch(`https://playground.4geeks.com/todo/todos/${todoId}`, {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            })
-            .then(resp => {
-                if (!resp.ok) {
-                    throw new Error("Network response was not ok");
-                }
-                return resp.json();
-            });
-        });
-
-        Promise.all(deletePromises)
-            .then(() => {
-                setItems([]);
-            })
-            .catch(error => console.log(error));
+        Promise.all(
+            items.map(item => 
+                fetch(`https://playground.4geeks.com/todo/todos/${item.id}`, {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                }).then(resp => {
+                    if (!resp.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return resp.json();
+                })
+            )
+        )
+        .then(() => {
+            setItems([]);
+        })
+        .catch(error => console.log(error));
     };
 
     return (
@@ -144,7 +197,7 @@ const Lista = () => {
                         {item.label}
                         <button
                             className="btn btn-sm"
-                            onClick={() => handleDelete(index)}
+                            onClick={() => handleDeleteTask(item.id, index)}
                         >
                             {hoveredIndex === index ? "x" : ""}
                         </button>
@@ -159,14 +212,15 @@ const Lista = () => {
             <button className="btn-f" onClick={handleDeleteAll}>
                 Delete All Tasks
             </button>
+            <button className="btn-g" onClick={createUser}>
+                Create User
+            </button>
+            <button className="btn-h" onClick={deleteUser}>
+                Delete User
+            </button>
         </div>
     );
 };
 
 export default Lista;
-
-
-
-
-
 
