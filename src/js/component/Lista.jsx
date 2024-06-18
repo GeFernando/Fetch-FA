@@ -26,7 +26,7 @@ const Lista = () => {
     };
 
     const fetchCreateTask = (newTodo) => {
-        fetch(`https://playground.4geeks.com/todo/todos/GeFernando`, {
+        fetch(`https://playground.4geeks.com/todo/todos/${username}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -39,8 +39,8 @@ const Lista = () => {
             }
             return resp.json();
         })
-        .then(() => {
-            fetchTasks();
+        .then((createdTask) => {
+            setItems(prevItems => [...prevItems, createdTask]);
         })
         .catch(error => console.log(error));
     };
@@ -116,13 +116,8 @@ const Lista = () => {
         }
     };
 
-    const handleDelete = (index) => {
-        const newItems = items.filter((_, i) => i !== index);
-        setItems(newItems);
-        syncTasksWithServer(newItems);
-    };
-
     const handleDeleteTask = (taskId, index) => {
+        console.log(`Attempting to delete task with ID: ${taskId}`); 
         fetch(`https://playground.4geeks.com/todo/todos/${taskId}`, {
             method: "DELETE",
             headers: {
@@ -133,10 +128,16 @@ const Lista = () => {
             if (!resp.ok) {
                 throw new Error("Network response was not ok");
             }
-            return resp.json();
+            return resp.text(); 
         })
-        .then(() => {
-            handleDelete(index);
+        .then(responseText => {
+            if (responseText) {
+                console.log(`Response from server: ${responseText}`); 
+                const responseData = JSON.parse(responseText);
+                console.log(responseData);
+            }
+            console.log(`Successfully deleted task with ID: ${taskId}`); 
+            setItems(prevItems => prevItems.filter((_, i) => i !== index));
         })
         .catch(error => console.log(error));
     };
@@ -153,7 +154,9 @@ const Lista = () => {
                     if (!resp.ok) {
                         throw new Error("Network response was not ok");
                     }
-                    return resp.json();
+                    return resp.text();
+                }).catch(error => {
+                    console.error(`Error deleting task with ID ${item.id}:`, error);
                 })
             )
         )
@@ -223,4 +226,8 @@ const Lista = () => {
 };
 
 export default Lista;
+
+
+
+
 

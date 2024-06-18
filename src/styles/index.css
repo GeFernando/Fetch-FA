@@ -10,10 +10,11 @@ body {
     height: 641px;
 }
 .alert {
-    transform: translateX(200%) translateY(40%);
+    padding: 0;
+    transform: translateX(160%) translateY(40%);
     border-width: 2px;
-    width: 200px; 
-    height: 80px;
+    width: 150px; 
+    height: 90px;
     border-radius: 0;
     text-align: center; 
     display: flex;
@@ -77,4 +78,9 @@ h1 {
 }
 .red-text {
     color: red;
+}
+p {
+    transform: translateY(15%);
+    display: flex;
+    font-size: 14px;
 }
